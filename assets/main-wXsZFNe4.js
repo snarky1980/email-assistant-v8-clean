@@ -16075,9 +16075,10 @@ function App() {
   const [showAIPanel, setShowAIPanel] = reactExports.useState(false);
   const [preferPopout, setPreferPopout] = reactExports.useState(() => {
     try {
-      return localStorage.getItem("ea_prefer_popout") === "true";
+      const saved = localStorage.getItem("ea_prefer_popout");
+      return saved === null ? true : saved === "true";
     } catch {
-      return false;
+      return true;
     }
   });
   const [showHighlights, setShowHighlights] = reactExports.useState(() => {
@@ -18413,4 +18414,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-CJ8Wz06C.js.map
+//# sourceMappingURL=main-wXsZFNe4.js.map
