@@ -16958,10 +16958,11 @@ function App() {
     return result;
   };
   reactExports.useEffect(() => {
-    if (selectedTemplate) {
+    if (selectedTemplate && templatesData) {
       const initialVars = {};
       selectedTemplate.variables.forEach((varName) => {
-        const varInfo = templatesData.variables[varName];
+        var _a2;
+        const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
         if (varInfo) {
           initialVars[varName] = varInfo.example || "";
         }
@@ -16976,7 +16977,7 @@ function App() {
       setFinalSubject("");
       setFinalBody("");
     }
-  }, [selectedTemplate, templateLanguage, interfaceLanguage]);
+  }, [selectedTemplate, templateLanguage, interfaceLanguage, templatesData]);
   reactExports.useEffect(() => {
     if (selectedTemplate && !varsRemoteUpdateRef.current) {
       setFinalSubject((currentSubject) => {
@@ -18410,4 +18411,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-CY5UIj39.js.map
+//# sourceMappingURL=main-DSQaANOw.js.map
