@@ -16981,13 +16981,20 @@ function App() {
     }
   }, [selectedTemplate, templateLanguage, interfaceLanguage]);
   reactExports.useEffect(() => {
-    if (selectedTemplate) {
-      const subjectWithVars = replaceVariables(selectedTemplate.subject[templateLanguage] || "");
-      const bodyWithVars = replaceVariables(selectedTemplate.body[templateLanguage] || "");
-      setFinalSubject(subjectWithVars);
-      setFinalBody(bodyWithVars);
+    if (selectedTemplate && !varsRemoteUpdateRef.current) {
+      setFinalSubject((currentSubject) => {
+        const updatedSubject = replaceVariables(currentSubject);
+        return updatedSubject !== currentSubject ? updatedSubject : currentSubject;
+      });
+      setFinalBody((currentBody) => {
+        const updatedBody = replaceVariables(currentBody);
+        return updatedBody !== currentBody ? updatedBody : currentBody;
+      });
     }
-  }, [variables, selectedTemplate, templateLanguage]);
+    if (varsRemoteUpdateRef.current) {
+      varsRemoteUpdateRef.current = false;
+    }
+  }, [variables, selectedTemplate]);
   const copyToClipboard = async (type = "all") => {
     let content = "";
     switch (type) {
@@ -17053,12 +17060,12 @@ ${finalBody}`;
     }
   };
   const exportAs = async (mode) => {
-    const subject2 = finalSubject || "";
+    const subject = finalSubject || "";
     const bodyText = finalBody || "";
     const bodyHtml = `<html><body><pre style="font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; white-space: pre-wrap; line-height: 1.6">${(bodyText || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre></body></html>`;
     if (mode === "eml") {
       const eml = [
-        `Subject: ${subject2}`,
+        `Subject: ${subject}`,
         "MIME-Version: 1.0",
         "Content-Type: text/plain; charset=UTF-8",
         "",
@@ -17163,9 +17170,9 @@ ${finalBody}`;
       alert(templateLanguage === "fr" ? "Veuillez d'abord sélectionner un modèle et remplir le contenu." : "Please first select a template and fill in the content.");
       return;
     }
-    const subject2 = finalSubject || "";
-    const body2 = (finalBody || "").replace(/\n/g, "\r\n");
-    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject2)}&body=${encodeURIComponent(body2)}`;
+    const subject = finalSubject || "";
+    const body = (finalBody || "").replace(/\n/g, "\r\n");
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     try {
       window.location.href = mailtoUrl;
       if (document.activeElement) {
@@ -17184,7 +17191,7 @@ ${finalBody}`;
         window.open(mailtoUrl, "_blank");
       } catch (fallbackError) {
         console.error("Fallback method failed:", fallbackError);
-        navigator.clipboard.writeText(`${subject2}
+        navigator.clipboard.writeText(`${subject}
 
 ${finalBody}`).then(() => {
           alert(templateLanguage === "fr" ? "Impossible d'ouvrir votre client de messagerie. Le contenu a été copié dans le presse-papiers." : "Unable to open your email client. The content has been copied to your clipboard.");
@@ -18398,4 +18405,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-RvN3KVHU.js.map
+//# sourceMappingURL=main-9zgyK6GJ.js.map
