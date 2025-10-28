@@ -9438,28 +9438,25 @@ const HighlightingEditor = ({
       return;
     }
     if (isUserTypingRef.current) {
-      console.log("🔧 User typing - debouncing highlight update");
-      lastValueRef.current = value;
-      const timerId = setTimeout(() => {
+      console.log("🔧 User typing - applying highlights immediately");
+      const textToRender2 = value || "";
+      const newHtml2 = buildHighlightedHTML(textToRender2);
+      if (editableRef.current.innerHTML !== newHtml2) {
+        isInternalUpdateRef.current = true;
+        const cursorPos2 = saveCursorPosition();
+        editableRef.current.innerHTML = newHtml2;
+        lastValueRef.current = textToRender2;
+        requestAnimationFrame(() => {
+          restoreCursorPosition(cursorPos2);
+          setTimeout(() => {
+            isInternalUpdateRef.current = false;
+            isUserTypingRef.current = false;
+          }, 50);
+        });
+      } else {
         isUserTypingRef.current = false;
-        if (editableRef.current) {
-          const textToRender2 = value || "";
-          const newHtml2 = buildHighlightedHTML(textToRender2);
-          if (editableRef.current.innerHTML !== newHtml2) {
-            isInternalUpdateRef.current = true;
-            const cursorPos2 = saveCursorPosition();
-            editableRef.current.innerHTML = newHtml2;
-            lastValueRef.current = textToRender2;
-            requestAnimationFrame(() => {
-              restoreCursorPosition(cursorPos2);
-              setTimeout(() => {
-                isInternalUpdateRef.current = false;
-              }, 50);
-            });
-          }
-        }
-      }, 300);
-      return () => clearTimeout(timerId);
+      }
+      return;
     }
     const hasVars = Object.keys(variables).length > 0;
     const hasTemplate = !!templateOriginal;
@@ -16983,12 +16980,20 @@ function App() {
   reactExports.useEffect(() => {
     if (selectedTemplate && !varsRemoteUpdateRef.current) {
       setFinalSubject((currentSubject) => {
-        const updatedSubject = replaceVariables(currentSubject);
-        return updatedSubject !== currentSubject ? updatedSubject : currentSubject;
+        let result = currentSubject;
+        Object.entries(variables).forEach(([varName, value]) => {
+          const regex = new RegExp(`<<${varName}>>`, "g");
+          result = result.replace(regex, value || `<<${varName}>>`);
+        });
+        return result !== currentSubject ? result : currentSubject;
       });
       setFinalBody((currentBody) => {
-        const updatedBody = replaceVariables(currentBody);
-        return updatedBody !== currentBody ? updatedBody : currentBody;
+        let result = currentBody;
+        Object.entries(variables).forEach(([varName, value]) => {
+          const regex = new RegExp(`<<${varName}>>`, "g");
+          result = result.replace(regex, value || `<<${varName}>>`);
+        });
+        return result !== currentBody ? result : currentBody;
       });
     }
     if (varsRemoteUpdateRef.current) {
@@ -18405,4 +18410,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-9zgyK6GJ.js.map
+//# sourceMappingURL=main-CY5UIj39.js.map
