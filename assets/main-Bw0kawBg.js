@@ -16979,7 +16979,7 @@ function App() {
       setFinalSubject("");
       setFinalBody("");
     }
-  }, [selectedTemplate, templateLanguage, interfaceLanguage, templatesData]);
+  }, [selectedTemplate, templateLanguage, interfaceLanguage]);
   reactExports.useEffect(() => {
     if (selectedTemplate && !varsRemoteUpdateRef.current) {
       setFinalSubject((currentSubject) => {
@@ -18414,4 +18414,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-wXsZFNe4.js.map
+//# sourceMappingURL=main-Bw0kawBg.js.map
