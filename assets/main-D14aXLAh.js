@@ -15764,7 +15764,7 @@ const customEditorStyles = `
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
+  
   /* Enhanced variable highlighting styles */
   .variable-highlight {
     background-color: #fef3c7;
@@ -15777,49 +15777,49 @@ const customEditorStyles = `
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     letter-spacing: 0.005em;
   }
-
+  
   /* Scrollbar always visible */
   [data-slot="scroll-area-scrollbar"] {
     opacity: 1 !important;
     visibility: visible !important;
   }
-
+  
   [data-slot="scroll-area-thumb"] {
     background-color: #cbd5e1 !important;
     opacity: 1 !important;
   }
-
+  
   [data-slot="scroll-area-scrollbar"]:hover [data-slot="scroll-area-thumb"] {
     background-color: #94a3b8 !important;
   }
-
+  
   /* Remove visual artifacts in inputs */
   input[type="text"], input[type="number"], input {
     list-style: none !important;
     list-style-type: none !important;
     background-image: none !important;
   }
-
+  
   input::before, input::after {
     content: none !important;
     display: none !important;
   }
-
+  
   /* Remove dots/bullets artifacts */
   input::-webkit-list-button {
     display: none !important;
   }
-
+  
   input::-webkit-calendar-picker-indicator {
     display: none !important;
   }
-
+  
   /* Modern editor typography */
   .editor-container {
     position: relative;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   }
-
+  
   .editor-overlay {
     position: absolute;
     top: 0;
@@ -15839,7 +15839,7 @@ const customEditorStyles = `
     color: transparent;
     z-index: 1;
   }
-
+  
   /* Variable highlighting using <mark> tags in contentEditable */
   mark.var-highlight {
     display: inline;
@@ -15868,7 +15868,7 @@ const customEditorStyles = `
     box-shadow: 0 0 0 3px rgba(20, 90, 100, 0.18);
     transition: outline-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
   }
-
+  
   .editor-textarea {
     position: relative;
     z-index: 2;
@@ -15877,25 +15877,25 @@ const customEditorStyles = `
     font-weight: 400;
     letter-spacing: 0.01em;
   }
-
+  
   /* Input field typography improvements */
   input, textarea {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
     font-weight: 400;
     letter-spacing: 0.01em;
   }
-
+  
   /* Resizable popup styles */
   .resizable-popup {
     resize: both;
     overflow: auto;
     position: relative;
   }
-
+  
   .resizable-popup::-webkit-resizer {
     display: none; /* Hide default resizer completely */
   }
-
+  
   /* Custom resize handle */
   .custom-resize-handle {
     position: absolute;
@@ -15911,7 +15911,7 @@ const customEditorStyles = `
     transition: opacity 0.2s;
     pointer-events: none; /* Let browser handle resize */
   }
-
+  
   .resizable-popup:hover .custom-resize-handle {
     opacity: 1;
   }
@@ -16075,10 +16075,9 @@ function App() {
   const [showAIPanel, setShowAIPanel] = reactExports.useState(false);
   const [preferPopout, setPreferPopout] = reactExports.useState(() => {
     try {
-      const saved = localStorage.getItem("ea_prefer_popout");
-      return saved === null ? true : saved === "true";
+      return localStorage.getItem("ea_prefer_popout") === "true";
     } catch {
-      return true;
+      return false;
     }
   });
   const [showHighlights, setShowHighlights] = reactExports.useState(() => {
@@ -16656,8 +16655,7 @@ function App() {
           if (templatesData == null ? void 0 : templatesData.variables) {
             const initialVars = {};
             selectedTemplate.variables.forEach((varName) => {
-              var _a2;
-              const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
+              const varInfo = templatesData.variables[varName];
               if (varInfo) initialVars[varName] = varInfo.example || "";
             });
             setVariables((prev) => ({ ...prev, ...initialVars }));
@@ -16960,11 +16958,10 @@ function App() {
     return result;
   };
   reactExports.useEffect(() => {
-    if (selectedTemplate && templatesData) {
+    if (selectedTemplate) {
       const initialVars = {};
       selectedTemplate.variables.forEach((varName) => {
-        var _a2;
-        const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
+        const varInfo = templatesData.variables[varName];
         if (varInfo) {
           initialVars[varName] = varInfo.example || "";
         }
@@ -17053,12 +17050,12 @@ ${finalBody}`;
     }
   };
   const exportAs = async (mode) => {
-    const subject = finalSubject || "";
+    const subject2 = finalSubject || "";
     const bodyText = finalBody || "";
     const bodyHtml = `<html><body><pre style="font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; white-space: pre-wrap; line-height: 1.6">${(bodyText || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre></body></html>`;
     if (mode === "eml") {
       const eml = [
-        `Subject: ${subject}`,
+        `Subject: ${subject2}`,
         "MIME-Version: 1.0",
         "Content-Type: text/plain; charset=UTF-8",
         "",
@@ -17141,11 +17138,10 @@ ${finalBody}`;
     setShowResetWarning(true);
   };
   const confirmReset = () => {
-    if (selectedTemplate && templatesData) {
+    if (selectedTemplate) {
       const initialVars = {};
       selectedTemplate.variables.forEach((varName) => {
-        var _a2;
-        const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
+        const varInfo = templatesData.variables[varName];
         if (varInfo) {
           initialVars[varName] = varInfo.example || "";
         }
@@ -17164,9 +17160,9 @@ ${finalBody}`;
       alert(templateLanguage === "fr" ? "Veuillez d'abord sélectionner un modèle et remplir le contenu." : "Please first select a template and fill in the content.");
       return;
     }
-    const subject = finalSubject || "";
-    const body = (finalBody || "").replace(/\n/g, "\r\n");
-    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const subject2 = finalSubject || "";
+    const body2 = (finalBody || "").replace(/\n/g, "\r\n");
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject2)}&body=${encodeURIComponent(body2)}`;
     try {
       window.location.href = mailtoUrl;
       if (document.activeElement) {
@@ -17185,7 +17181,7 @@ ${finalBody}`;
         window.open(mailtoUrl, "_blank");
       } catch (fallbackError) {
         console.error("Fallback method failed:", fallbackError);
-        navigator.clipboard.writeText(`${subject}
+        navigator.clipboard.writeText(`${subject2}
 
 ${finalBody}`).then(() => {
           alert(templateLanguage === "fr" ? "Impossible d'ouvrir votre client de messagerie. Le contenu a été copié dans le presse-papiers." : "Unable to open your email client. The content has been copied to your clipboard.");
@@ -18399,4 +18395,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-CUZeVmm8.js.map
+//# sourceMappingURL=main-D14aXLAh.js.map
