@@ -16655,7 +16655,8 @@ function App() {
           if (templatesData == null ? void 0 : templatesData.variables) {
             const initialVars = {};
             selectedTemplate.variables.forEach((varName) => {
-              const varInfo = templatesData.variables[varName];
+              var _a2;
+              const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
               if (varInfo) initialVars[varName] = varInfo.example || "";
             });
             setVariables((prev) => ({ ...prev, ...initialVars }));
@@ -17154,10 +17155,11 @@ ${finalBody}`;
     setShowResetWarning(true);
   };
   const confirmReset = () => {
-    if (selectedTemplate) {
+    if (selectedTemplate && templatesData) {
       const initialVars = {};
       selectedTemplate.variables.forEach((varName) => {
-        const varInfo = templatesData.variables[varName];
+        var _a2;
+        const varInfo = (_a2 = templatesData.variables) == null ? void 0 : _a2[varName];
         if (varInfo) {
           initialVars[varName] = varInfo.example || "";
         }
@@ -18411,4 +18413,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-DSQaANOw.js.map
+//# sourceMappingURL=main-CJ8Wz06C.js.map
