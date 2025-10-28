@@ -18368,7 +18368,19 @@ class ErrorBoundary extends React.Component {
       error,
       errorInfo
     });
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    console.error("=== ERROR BOUNDARY CAUGHT ERROR ===");
+    console.error("Error:", error);
+    console.error("Error message:", error == null ? void 0 : error.message);
+    console.error("Error stack:", error == null ? void 0 : error.stack);
+    console.error("Component stack:", errorInfo == null ? void 0 : errorInfo.componentStack);
+    console.error("===================================");
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        alert(`ERROR: ${error == null ? void 0 : error.message}
+
+Check console for details`);
+      }, 100);
+    }
   }
   render() {
     if (this.state.hasError) {
@@ -18395,4 +18407,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-D14aXLAh.js.map
+//# sourceMappingURL=main-CxpwGDUB.js.map
