@@ -16458,7 +16458,7 @@ function App() {
     const t2 = setTimeout(() => {
       var _a2;
       try {
-        if (!selectedTemplate) return;
+        if (!selectedTemplate || !selectedTemplate.variables || selectedTemplate.variables.length === 0) return;
         const firstEmpty = selectedTemplate.variables.find((vn) => !(variables[vn] || "").trim()) || selectedTemplate.variables[0];
         const el = varInputRefs.current[firstEmpty];
         if (el && typeof el.focus === "function") {
@@ -18407,4 +18407,4 @@ Check console for details`);
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-CxpwGDUB.js.map
+//# sourceMappingURL=main-Cgm2I9d0.js.map
