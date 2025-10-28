@@ -16981,28 +16981,13 @@ function App() {
     }
   }, [selectedTemplate, templateLanguage, interfaceLanguage]);
   reactExports.useEffect(() => {
-    if (selectedTemplate && !varsRemoteUpdateRef.current) {
-      setFinalSubject((currentSubject) => {
-        let result = currentSubject;
-        Object.entries(variables).forEach(([varName, value]) => {
-          const regex = new RegExp(`<<${varName}>>`, "g");
-          result = result.replace(regex, value || `<<${varName}>>`);
-        });
-        return result !== currentSubject ? result : currentSubject;
-      });
-      setFinalBody((currentBody) => {
-        let result = currentBody;
-        Object.entries(variables).forEach(([varName, value]) => {
-          const regex = new RegExp(`<<${varName}>>`, "g");
-          result = result.replace(regex, value || `<<${varName}>>`);
-        });
-        return result !== currentBody ? result : currentBody;
-      });
+    if (selectedTemplate) {
+      const subjectWithVars = replaceVariables(selectedTemplate.subject[templateLanguage] || "");
+      const bodyWithVars = replaceVariables(selectedTemplate.body[templateLanguage] || "");
+      setFinalSubject(subjectWithVars);
+      setFinalBody(bodyWithVars);
     }
-    if (varsRemoteUpdateRef.current) {
-      varsRemoteUpdateRef.current = false;
-    }
-  }, [variables, selectedTemplate]);
+  }, [variables, selectedTemplate, templateLanguage]);
   const copyToClipboard = async (type = "all") => {
     let content = "";
     switch (type) {
@@ -18414,4 +18399,4 @@ class ErrorBoundary extends React.Component {
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-Bw0kawBg.js.map
+//# sourceMappingURL=main-CUZeVmm8.js.map
