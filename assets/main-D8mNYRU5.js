@@ -16233,7 +16233,7 @@ function App() {
     } catch {
     }
   }, [preferPopout]);
-  const openVariables = reactExports.useCallback(() => {
+  reactExports.useCallback(() => {
     var _a2, _b2, _c2, _d, _e, _f;
     if (preferPopout && ((_a2 = selectedTemplate == null ? void 0 : selectedTemplate.variables) == null ? void 0 : _a2.length) > 0) {
       const url = new URL(window.location.href);
@@ -16356,6 +16356,28 @@ function App() {
         }
       };
     } catch {
+    }
+  }, []);
+  reactExports.useEffect(() => {
+    if (!canUseBC) return;
+    try {
+      const channel = new BroadcastChannel("email-assistant-sync");
+      channel.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+        if (msg.type === "variableChanged" && msg.allVariables) {
+          setVariables(msg.allVariables);
+        }
+      };
+      return () => {
+        try {
+          channel.close();
+        } catch (e) {
+          console.error("Error closing BroadcastChannel:", e);
+        }
+      };
+    } catch (e) {
+      console.error("BroadcastChannel not available:", e);
     }
   }, []);
   reactExports.useEffect(() => {
@@ -16595,9 +16617,9 @@ function App() {
   }, [loading, templatesData, selectedTemplate, debug]);
   reactExports.useEffect(() => {
     if (!templatesData) return;
-    const params = new URLSearchParams(window.location.search);
-    const templateId = params.get("id");
-    const langParam = params.get("lang");
+    const params2 = new URLSearchParams(window.location.search);
+    const templateId = params2.get("id");
+    const langParam = params2.get("lang");
     if (langParam && ["fr", "en"].includes(langParam)) {
       setTemplateLanguage(langParam);
       setInterfaceLanguage(langParam);
@@ -17638,7 +17660,31 @@ ${finalBody}`).then(() => {
                   selectedTemplate && selectedTemplate.variables && selectedTemplate.variables.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
                     Button,
                     {
-                      onClick: openVariables,
+                      onClick: () => {
+                        var _a2, _b2, _c2, _d, _e;
+                        const url = new URL(window.location.href);
+                        url.searchParams.set("varsOnly", "1");
+                        if (selectedTemplate == null ? void 0 : selectedTemplate.id) url.searchParams.set("id", selectedTemplate.id);
+                        if (templateLanguage) url.searchParams.set("lang", templateLanguage);
+                        const count2 = ((_a2 = selectedTemplate == null ? void 0 : selectedTemplate.variables) == null ? void 0 : _a2.length) || 0;
+                        const columns = Math.max(1, Math.min(3, count2 >= 3 ? 3 : count2));
+                        const cardW = 360;
+                        const gap = 8;
+                        const headerH = 80;
+                        const rowH = 120;
+                        const rows = Math.max(1, Math.ceil(count2 / columns));
+                        let w = columns * cardW + (columns - 1) * gap + 48;
+                        let h = headerH + rows * rowH + 48;
+                        const availW = (((_b2 = window.screen) == null ? void 0 : _b2.availWidth) || window.innerWidth) - 40;
+                        const availH = (((_c2 = window.screen) == null ? void 0 : _c2.availHeight) || window.innerHeight) - 80;
+                        w = Math.min(Math.max(600, w), availW);
+                        h = Math.min(Math.max(500, h), availH);
+                        const left = Math.max(0, Math.floor(((((_d = window.screen) == null ? void 0 : _d.availWidth) || window.innerWidth) - w) / 2));
+                        const top = Math.max(0, Math.floor(((((_e = window.screen) == null ? void 0 : _e.availHeight) || window.innerHeight) - h) / 3));
+                        const features = `popup=yes,width=${Math.round(w)},height=${Math.round(h)},left=${left},top=${top},toolbar=0,location=0,menubar=0,status=0,scrollbars=1,resizable=1`;
+                        const win = window.open(url.toString(), "_blank", features);
+                        if (win && win.focus) win.focus();
+                      },
                       size: "sm",
                       className: "shadow-soft",
                       variant: "outline",
@@ -18355,6 +18401,261 @@ Shift+click to toggle preference`,
     ] })
   ] });
 }
+function VariablesPopout({
+  selectedTemplate,
+  templatesData,
+  initialVariables,
+  interfaceLanguage
+}) {
+  const [variables, setVariables] = reactExports.useState(initialVariables || {});
+  const [focusedVar, setFocusedVar] = reactExports.useState(null);
+  const channelRef = reactExports.useRef(null);
+  const varInputRefs = reactExports.useRef({});
+  reactExports.useEffect(() => {
+    try {
+      const channel = new BroadcastChannel("email-assistant-sync");
+      channelRef.current = channel;
+      channel.onmessage = (event) => {
+        if (event.data.type === "variablesUpdated") {
+          setVariables(event.data.variables);
+        }
+      };
+      return () => {
+        channel.close();
+      };
+    } catch (e) {
+      console.error("BroadcastChannel not available:", e);
+    }
+  }, []);
+  const updateVariable = (varName, value) => {
+    const newVariables = { ...variables, [varName]: value };
+    setVariables(newVariables);
+    if (channelRef.current) {
+      try {
+        channelRef.current.postMessage({
+          type: "variableChanged",
+          varName,
+          value,
+          allVariables: newVariables
+        });
+      } catch (e) {
+        console.error("Failed to send variable update:", e);
+      }
+    }
+  };
+  reactExports.useEffect(() => {
+    if (!(selectedTemplate == null ? void 0 : selectedTemplate.variables)) return;
+    const firstEmpty = selectedTemplate.variables.find(
+      (vn) => !(variables[vn] || "").trim()
+    ) || selectedTemplate.variables[0];
+    const el = varInputRefs.current[firstEmpty];
+    if (el && el.focus) {
+      setTimeout(() => {
+        var _a;
+        el.focus();
+        (_a = el.select) == null ? void 0 : _a.call(el);
+      }, 100);
+    }
+  }, []);
+  if (!selectedTemplate || !templatesData) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-500", children: "Loading..." }) });
+  }
+  const t = interfaceLanguage === "fr" ? {
+    title: "Modifier les variables",
+    resetExample: "Remettre l'exemple",
+    clear: "Effacer",
+    close: "Fermer"
+  } : {
+    title: "Edit Variables",
+    resetExample: "Reset to example",
+    clear: "Clear",
+    close: "Close"
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "min-h-screen bg-white", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "div",
+      {
+        className: "sticky top-0 z-10 px-6 py-4 flex items-center justify-between",
+        style: {
+          background: "linear-gradient(135deg, #145a64 0%, #1a7a87 100%)",
+          borderBottom: "3px solid rgba(139, 195, 74, 0.3)"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(PenLine, { className: "h-5 w-5 mr-2 text-white" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-lg font-bold text-white", children: t.title })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.close(),
+              className: "text-white hover:bg-white/20 rounded-lg p-2 transition-colors",
+              title: t.close,
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(X, { className: "h-5 w-5" })
+            }
+          )
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "p-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto", children: selectedTemplate.variables.map((varName) => {
+      var _a, _b;
+      const varInfo = (_a = templatesData.variables) == null ? void 0 : _a[varName];
+      if (!varInfo) return null;
+      const currentValue = variables[varName] || "";
+      const isFocused = focusedVar === varName;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "div",
+        {
+          className: "rounded-lg p-3 transition-all duration-200",
+          style: {
+            background: isFocused ? "rgba(59, 130, 246, 0.15)" : "rgba(200, 215, 150, 0.4)",
+            border: isFocused ? "2px solid rgba(59, 130, 246, 0.4)" : "1px solid rgba(190, 210, 140, 0.6)",
+            boxShadow: isFocused ? "0 0 0 3px rgba(59, 130, 246, 0.1)" : "none"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg p-4 border border-gray-200", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mb-2 flex items-start justify-between gap-3", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { className: "text-sm font-semibold text-gray-900 flex-1 leading-tight", children: ((_b = varInfo.description) == null ? void 0 : _b[interfaceLanguage]) || varName }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "shrink-0 flex items-center gap-1 opacity-0 hover:opacity-100 focus-within:opacity-100 transition-opacity", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "text-xs px-2 py-0.5 rounded border border-gray-300 text-teal-700 hover:bg-teal-50",
+                    title: t.resetExample,
+                    onClick: () => updateVariable(varName, varInfo.example || ""),
+                    children: "Ex."
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "button",
+                  {
+                    className: "text-xs px-2 py-0.5 rounded border border-gray-300 text-red-700 hover:bg-red-50",
+                    title: t.clear,
+                    onClick: () => updateVariable(varName, ""),
+                    children: "X"
+                  }
+                )
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "textarea",
+              {
+                ref: (el) => {
+                  if (el) varInputRefs.current[varName] = el;
+                },
+                value: currentValue,
+                onChange: (e) => updateVariable(varName, e.target.value),
+                onFocus: () => setFocusedVar(varName),
+                onBlur: () => setFocusedVar((prev) => prev === varName ? null : prev),
+                onKeyDown: (e) => {
+                  var _a2;
+                  if (e.key === "Tab" || e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    const list = selectedTemplate.variables;
+                    const currentIdx = list.indexOf(varName);
+                    let nextIdx;
+                    if (e.shiftKey && e.key === "Tab") {
+                      nextIdx = (currentIdx - 1 + list.length) % list.length;
+                    } else {
+                      nextIdx = (currentIdx + 1) % list.length;
+                    }
+                    const nextVar = list[nextIdx];
+                    const el = varInputRefs.current[nextVar];
+                    if (el && el.focus) {
+                      el.focus();
+                      (_a2 = el.select) == null ? void 0 : _a2.call(el);
+                    }
+                  }
+                },
+                placeholder: varInfo.example || "",
+                className: "w-full min-h-[32px] border-2 border-gray-200 rounded-md resize-none transition-all duration-200 text-sm px-2 py-1 leading-5 focus:border-blue-400 focus:ring-2 focus:ring-blue-100",
+                style: {
+                  height: (() => {
+                    const lines = (currentValue.match(/\n/g) || []).length + 1;
+                    return lines <= 2 ? lines === 1 ? "32px" : "52px" : "52px";
+                  })()
+                }
+              }
+            )
+          ] })
+        },
+        varName
+      );
+    }) }) })
+  ] });
+}
+function VariablesPage() {
+  const [templatesData, setTemplatesData] = reactExports.useState(null);
+  const [selectedTemplate, setSelectedTemplate] = reactExports.useState(null);
+  const [variables, setVariables] = reactExports.useState({});
+  const [interfaceLanguage, setInterfaceLanguage] = reactExports.useState("fr");
+  const [loading, setLoading] = reactExports.useState(true);
+  reactExports.useEffect(() => {
+    const params2 = new URLSearchParams(window.location.search);
+    const templateId = params2.get("id");
+    const lang = params2.get("lang") || "fr";
+    setInterfaceLanguage(lang);
+    const loadData = async () => {
+      try {
+        const response = await fetch("/email-assistant-v8-clean/templates.json");
+        const data = await response.json();
+        setTemplatesData(data);
+        if (templateId && data.templates) {
+          const template = data.templates.find((t) => t.id === templateId);
+          if (template) {
+            setSelectedTemplate(template);
+            const initialVars = {};
+            if (template.variables && data.variables) {
+              template.variables.forEach((varName) => {
+                const varInfo = data.variables[varName];
+                if (varInfo) {
+                  initialVars[varName] = varInfo.example || "";
+                }
+              });
+            }
+            setVariables(initialVars);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load templates:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+    let channel;
+    try {
+      channel = new BroadcastChannel("email-assistant-sync");
+      channel.onmessage = (event) => {
+        if (event.data.type === "variablesUpdated") {
+          setVariables(event.data.variables);
+        }
+      };
+    } catch (e) {
+      console.error("BroadcastChannel not available:", e);
+    }
+    return () => {
+      if (channel) channel.close();
+    };
+  }, []);
+  if (loading) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600", children: interfaceLanguage === "fr" ? "Chargement..." : "Loading..." })
+    ] }) });
+  }
+  if (!selectedTemplate || !templatesData) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen flex items-center justify-center bg-gray-50", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 text-lg", children: interfaceLanguage === "fr" ? "Modèle non trouvé" : "Template not found" }) }) });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    VariablesPopout,
+    {
+      selectedTemplate,
+      templatesData,
+      initialVariables: variables,
+      interfaceLanguage
+    }
+  );
+}
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -18404,7 +18705,9 @@ Check console for details`);
     return this.props.children;
   }
 }
+const params = new URLSearchParams(window.location.search);
+const isVarsOnly = params.get("varsOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
+  /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-Cgm2I9d0.js.map
+//# sourceMappingURL=main-D8mNYRU5.js.map
