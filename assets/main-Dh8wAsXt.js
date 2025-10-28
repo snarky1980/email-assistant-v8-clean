@@ -18596,7 +18596,7 @@ function VariablesPage() {
     setInterfaceLanguage(lang);
     const loadData = async () => {
       try {
-        const response = await fetch("/email-assistant-v8-clean/templates.json");
+        const response = await fetch("./templates.json");
         const data = await response.json();
         setTemplatesData(data);
         if (templateId && data.templates) {
@@ -18710,4 +18710,4 @@ const isVarsOnly = params.get("varsOnly") === "1";
 clientExports.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(reactExports.StrictMode, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: isVarsOnly ? /* @__PURE__ */ jsxRuntimeExports.jsx(VariablesPage, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) }) })
 );
-//# sourceMappingURL=main-D8mNYRU5.js.map
+//# sourceMappingURL=main-Dh8wAsXt.js.map
